@@ -15,4 +15,21 @@ Site web de liste de naissance auto-hébergé : cagnotte Leetchi mise en avant +
 
 1. Dans N8N, connecter des identifiants Google Sheets OAuth2 (Credentials → Google Sheets), puis les sélectionner sur les 3 nodes Google Sheets du workflow (le champ `credentials` du JSON exporté est un placeholder, il faut le relier manuellement après import).
 2. Importer `n8n-workflow-liste-naissance.json` dans N8N, vérifier `documentId` / `sheetName` sur chaque node Google Sheets, activer le workflow.
-3. Vérifier `WEBHOOK_URL` dans `liste-naissance.html` (actuellement `https://n8n.
+3. Vérifier `WEBHOOK_URL` dans `liste-naissance.html` (actuellement `https://n8n.delonca.com/webhook/liste-naissance`).
+4. Héberger `liste-naissance.html` (Nginx statique ou GitHub Pages).
+5. Configurer le sous-domaine OVH (ex. `naissance.delonca.com`) en reverse proxy vers le webhook N8N.
+
+## Gestion de la liste
+
+La liste se modifie directement dans le Google Sheet : ajouter une ligne = ajouter un cadeau (incrémenter `id`), remplir `nom`/`lien`/`prix`, laisser `reserve` vide ou `FALSE`. Ne pas partager le Sheet en édition avec les invités — seul le webhook N8N doit pouvoir y écrire, pour garder le contrôle sur les réservations.
+
+Note sur le brouillon initial : le kit "BEBECONFORT Trousse de toilette (8 produits)" a été éclaté en 8 lignes séparées et réservables individuellement (Tétines, Bavoirs, Coussinets d'allaitement, Thermomètre de bain, Brosse à cheveux, Kit ongles bébé, Thermomètre médical, Tapis d'éveil), plutôt que gardé comme un seul lot groupé — à ajuster dans le Sheet si ce n'est pas ce qui était voulu.
+
+## Reste à faire
+
+- [ ] Compléter `lien` et `prix` pour chaque ligne du Google Sheet
+- [ ] Connecter les identifiants Google Sheets OAuth2 dans N8N et importer/activer le workflow
+- [ ] Héberger le HTML + configurer le sous-domaine OVH
+- [ ] (Optionnel) Ajouter une protection basique sur le webhook contre les réservations frauduleuses
+
+⚠️ "Orion" est un prénom confirmé pour ce projet (utilisé tel quel dans le HTML).

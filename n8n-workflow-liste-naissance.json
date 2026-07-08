@@ -107,4 +107,93 @@
       },
       "id": "reserver-objet",
       "name": "Réserver (update Sheet)",
-      "type": "n8n-nod
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [220, 400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REMPLACER_PAR_ID_CREDENTIAL_N8N",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1DBBzZXJXa3zy3XtvXqIyaMRYF3Y_S36UZrLk8L_Zr7E"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Feuille 1"
+        },
+        "options": {}
+      },
+      "id": "relire-sheet-post",
+      "name": "Relire Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [440, 400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REMPLACER_PAR_ID_CREDENTIAL_N8N",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reçoit un item par ligne du Google Sheet (après mise à jour) et reconstruit le tableau objets[]\nconst objets = $input.all().map(item => {\n  const row = item.json;\n  return {\n    id: Number(row.id),\n    nom: row.nom || '',\n    lien: row.lien || '',\n    prix: row.prix !== undefined && row.prix !== '' ? Number(row.prix) : null,\n    reserve: String(row.reserve).trim().toUpperCase() === 'TRUE'\n  };\n});\n\nreturn [{ json: { objets } }];"
+      },
+      "id": "formatter-liste-post",
+      "name": "Formatter liste (post)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.objets }}",
+        "options": {}
+      },
+      "id": "repondre-post",
+      "name": "Répondre (mise à jour)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [880, 400]
+    }
+  ],
+  "connections": {
+    "Webhook GET": {
+      "main": [[{ "node": "Lire Google Sheet", "type": "main", "index": 0 }]]
+    },
+    "Lire Google Sheet": {
+      "main": [[{ "node": "Formatter liste", "type": "main", "index": 0 }]]
+    },
+    "Formatter liste": {
+      "main": [[{ "node": "Répondre (liste)", "type": "main", "index": 0 }]]
+    },
+    "Webhook POST": {
+      "main": [[{ "node": "Réserver (update Sheet)", "type": "main", "index": 0 }]]
+    },
+    "Réserver (update Sheet)": {
+      "main": [[{ "node": "Relire Google Sheet", "type": "main", "index": 0 }]]
+    },
+    "Relire Google Sheet": {
+      "main": [[{ "node": "Formatter liste (post)", "type": "main", "index": 0 }]]
+    },
+    "Formatter liste (post)": {
+      "main": [[{ "node": "Répondre (mise à jour)", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
