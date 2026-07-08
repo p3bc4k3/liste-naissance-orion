@@ -167,6 +167,26 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [880, 400]
+    },
+    {
+      "parameters": {
+        "sendTo": "jean.delonca@gmail.com",
+        "subject": "=🎁 Nouveau don réservé : {{ $json.body.nom }}",
+        "emailType": "text",
+        "message": "={{ $json.body.prenom }} vient de réserver : {{ $json.body.nom }}\n\nMessage laissé :\n{{ $json.body.message }}",
+        "options": {}
+      },
+      "id": "envoyer-email-don",
+      "name": "Envoyer email (don)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [220, 600],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REMPLACER_PAR_ID_CREDENTIAL_N8N",
+          "name": "Gmail account"
+        }
+      }
     }
   ],
   "connections": {
@@ -180,7 +200,10 @@
       "main": [[{ "node": "Répondre (liste)", "type": "main", "index": 0 }]]
     },
     "Webhook POST": {
-      "main": [[{ "node": "Réserver (update Sheet)", "type": "main", "index": 0 }]]
+      "main": [[
+        { "node": "Réserver (update Sheet)", "type": "main", "index": 0 },
+        { "node": "Envoyer email (don)", "type": "main", "index": 0 }
+      ]]
     },
     "Réserver (update Sheet)": {
       "main": [[{ "node": "Relire Google Sheet", "type": "main", "index": 0 }]]
