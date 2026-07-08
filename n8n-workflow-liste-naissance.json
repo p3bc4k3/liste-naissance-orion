@@ -173,7 +173,7 @@
         "sendTo": "jean.delonca@gmail.com",
         "subject": "=🎁 Nouveau don réservé : {{ $json.body.nom }}",
         "emailType": "text",
-        "message": "={{ $json.body.prenom }} vient de réserver : {{ $json.body.nom }}\n\nMessage laissé :\n{{ $json.body.message }}",
+        "message": "={{ $json.body.anonyme ? 'Quelqu\\'un (anonyme)' : $json.body.prenom }} vient de réserver : {{ $json.body.nom }}\n\nMessage laissé :\n{{ $json.body.message }}",
         "options": {}
       },
       "id": "envoyer-email-don",
