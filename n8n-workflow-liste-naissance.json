@@ -26,18 +26,47 @@
       "name": "Webhook POST",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [0, 260],
+      "position": [0, 400],
       "webhookId": "liste-naissance-post"
     },
     {
       "parameters": {
-        "jsCode": "// Lit le fichier objets.json depuis le disque du serveur N8N\nconst fs = require('fs');\nconst path = '/data/liste-naissance/objets.json';\n\nlet objets = [];\ntry {\n  objets = JSON.parse(fs.readFileSync(path, 'utf8'));\n} catch (e) {\n  objets = [];\n}\n\nreturn [{ json: { objets } }];"
+        "resource": "sheet",
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1DBBzZXJXa3zy3XtvXqIyaMRYF3Y_S36UZrLk8L_Zr7E"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Feuille 1"
+        },
+        "options": {}
       },
-      "id": "lire-json",
-      "name": "Lire objets.json",
+      "id": "lire-sheet-get",
+      "name": "Lire Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [220, 0],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REMPLACER_PAR_ID_CREDENTIAL_N8N",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reçoit un item par ligne du Google Sheet et reconstruit le tableau objets[]\nconst objets = $input.all().map(item => {\n  const row = item.json;\n  return {\n    id: Number(row.id),\n    nom: row.nom || '',\n    lien: row.lien || '',\n    prix: row.prix !== undefined && row.prix !== '' ? Number(row.prix) : null,\n    reserve: String(row.reserve).trim().toUpperCase() === 'TRUE'\n  };\n});\n\nreturn [{ json: { objets } }];"
+      },
+      "id": "formatter-liste-get",
+      "name": "Formatter liste",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [220, 0]
+      "position": [440, 0]
     },
     {
       "parameters": {
@@ -49,47 +78,33 @@
       "name": "Répondre (liste)",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
-      "position": [440, 0]
+      "position": [660, 0]
     },
     {
       "parameters": {
-        "jsCode": "// Lit le JSON, marque l'objet comme réservé, réécrit le fichier\nconst fs = require('fs');\nconst path = '/data/liste-naissance/objets.json';\n\nconst body = $input.first().json.body || $input.first().json;\nconst id = String(body.id);\n\nlet objets = [];\ntry {\n  objets = JSON.parse(fs.readFileSync(path, 'utf8'));\n} catch (e) {\n  objets = [];\n}\n\nobjets = objets.map(o => {\n  if (String(o.id) === id) {\n    return { ...o, reserve: true };\n  }\n  return o;\n});\n\nfs.writeFileSync(path, JSON.stringify(objets, null, 2));\n\nreturn [{ json: { objets } }];"
-      },
-      "id": "reserver-objet",
-      "name": "Réserver objet",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [220, 260]
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ $json.objets }}",
+        "resource": "sheet",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1DBBzZXJXa3zy3XtvXqIyaMRYF3Y_S36UZrLk8L_Zr7E"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Feuille 1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.body.id }}",
+            "reserve": "TRUE"
+          },
+          "matchingColumns": ["id"]
+        },
         "options": {}
       },
-      "id": "repondre-post",
-      "name": "Répondre (mise à jour)",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1,
-      "position": [440, 260]
-    }
-  ],
-  "connections": {
-    "Webhook GET": {
-      "main": [[{ "node": "Lire objets.json", "type": "main", "index": 0 }]]
-    },
-    "Lire objets.json": {
-      "main": [[{ "node": "Répondre (liste)", "type": "main", "index": 0 }]]
-    },
-    "Webhook POST": {
-      "main": [[{ "node": "Réserver objet", "type": "main", "index": 0 }]]
-    },
-    "Réserver objet": {
-      "main": [[{ "node": "Répondre (mise à jour)", "type": "main", "index": 0 }]]
-    }
-  },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  }
-}
+      "id": "reserver-objet",
+      "name": "Réserver (update Sheet)",
+      "type": "n8n-nod
