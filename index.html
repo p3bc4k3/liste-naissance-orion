@@ -124,9 +124,12 @@
   @keyframes pulse{ 0%,100%{ opacity:0.6; r:3.2;} 50%{ opacity:1; r:4.4;} }
   .constellation-wrap line{ stroke:var(--gold); stroke-width:0.6; opacity:0.55; }
 
+  .cta-group{
+    display:flex; flex-direction:column; align-items:center; gap:18px;
+    margin-top:30px;
+  }
   .leetchi-btn{
     display:inline-flex; align-items:center; gap:10px;
-    margin-top:30px;
     padding:14px 34px;
     background:linear-gradient(135deg, var(--gold-light), var(--gold));
     color:var(--navy-deep);
@@ -150,6 +153,33 @@
     transition:left .7s ease;
   }
   .leetchi-btn:hover::after{ left:130%; }
+
+  .amazon-btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:12px 28px;
+    background:transparent;
+    border:1px solid var(--olive-light);
+    color:var(--olive-light);
+    text-decoration:none;
+    font-family:'Jost', sans-serif;
+    font-weight:500;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    font-size:12px;
+    border-radius:2px;
+    transition:background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .amazon-btn:hover{ background:var(--olive-light); color:var(--navy-deep); }
+  .amazon-btn svg{ width:15px; height:15px; }
+  .amazon-note{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:0.9rem;
+    color:var(--gold-soft);
+    max-width:380px;
+    text-align:center;
+    margin-top:-4px;
+  }
 
   main{ position:relative; z-index:1; max-width:900px; margin:0 auto; padding: 60px 20px 100px; }
 
@@ -368,10 +398,18 @@
     </svg>
   </div>
 
-  <a class="leetchi-btn" href="https://www.leetchi.com/fr/c/naissance-orion-1237883?u=bd935c30-b5f3-4053-9b08-019f404e0119&utm_source=copylink&utm_medium=social_sharing" target="_blank" rel="noopener">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
-    Participer à la cagnotte
-  </a>
+  <div class="cta-group">
+    <a class="leetchi-btn" href="https://www.leetchi.com/fr/c/naissance-orion-1237883?u=bd935c30-b5f3-4053-9b08-019f404e0119&utm_source=copylink&utm_medium=social_sharing" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z"/></svg>
+      Participer à la cagnotte
+    </a>
+
+    <a class="amazon-btn" href="https://www.amazon.fr/baby-reg/jean-delonca-juillet-2026-maraussan/VP64RLNCI778" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+      Voir la liste sur Amazon
+    </a>
+    <p class="amazon-note">Livrée directement à la maison — et on se fera toujours un plaisir de vous recevoir !</p>
+  </div>
 </header>
 
 <main>
@@ -582,7 +620,7 @@
       carte.innerHTML = `
         <span class="marque"></span>
         <h3>${obj.nom}</h3>
-        <div class="prix">${obj.prix} €</div>
+        ${obj.prix !== null && obj.prix !== undefined && obj.prix !== '' ? `<div class="prix">${obj.prix} €</div>` : ''}
         ${obj.lien && obj.lien !== '#' ? `<a class="lien" href="${obj.lien}" target="_blank" rel="noopener">Voir l'objet</a>` : ''}
         <div class="actions" data-id="${obj.id}">
           ${obj.reserve
