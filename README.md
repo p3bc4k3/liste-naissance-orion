@@ -4,7 +4,7 @@ Site web de liste de naissance auto-hébergé : cagnotte Leetchi mise en avant +
 
 ## Architecture
 
-- **Frontend** : `liste-naissance.html`, 100% statique (HTML/CSS/JS vanilla), thème constellation d'Orion / mythologie grecque.
+- **Frontend** : `index.html`, 100% statique (HTML/CSS/JS vanilla), thème constellation d'Orion / mythologie grecque. Hébergé via GitHub Pages.
 - **Backend** : N8N (instance déjà en place sur le homelab), workflow `n8n-workflow-liste-naissance.json` avec deux routes sur un seul webhook :
   - `GET /liste-naissance` → lit le Google Sheet, renvoie la liste au format `objets[]`
   - `POST /liste-naissance` avec `{ id, action: "reserve" }` → met `reserve = TRUE` sur la ligne correspondante dans le Sheet, relit et renvoie la liste à jour
@@ -15,8 +15,8 @@ Site web de liste de naissance auto-hébergé : cagnotte Leetchi mise en avant +
 
 1. Dans N8N, connecter des identifiants Google Sheets OAuth2 (Credentials → Google Sheets), puis les sélectionner sur les 3 nodes Google Sheets du workflow (le champ `credentials` du JSON exporté est un placeholder, il faut le relier manuellement après import).
 2. Importer `n8n-workflow-liste-naissance.json` dans N8N, vérifier `documentId` / `sheetName` sur chaque node Google Sheets, activer le workflow.
-3. Vérifier `WEBHOOK_URL` dans `liste-naissance.html` (actuellement `https://n8n.delonca.com/webhook/liste-naissance`).
-4. Héberger `liste-naissance.html` (Nginx statique ou GitHub Pages).
+3. Vérifier `WEBHOOK_URL` dans `index.html` (actuellement `https://n8n.delonca.com/webhook/liste-naissance`).
+4. Hébergé via GitHub Pages (activé sur ce repo, branche `main`, racine `/`).
 5. Configurer le sous-domaine OVH (ex. `naissance.delonca.com`) en reverse proxy vers le webhook N8N.
 
 ## Gestion de la liste
