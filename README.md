@@ -8,7 +8,8 @@ Site web de liste de naissance auto-hébergé : cagnotte Leetchi mise en avant +
 - **Backend** : N8N (instance déjà en place sur le homelab), workflow `n8n-workflow-liste-naissance.json` avec deux routes sur un seul webhook :
   - `GET /liste-naissance` → lit le Google Sheet, renvoie la liste au format `objets[]`
   - `POST /liste-naissance` avec `{ id, action: "reserve", nom, prenom, message }` → met `reserve = TRUE` sur la ligne correspondante dans le Sheet, relit et renvoie la liste à jour, et envoie en parallèle un email à `jean.delonca@gmail.com` (nœud "Envoyer email (don)") avec le prénom du donateur et son message
-- **Stockage** : [Google Sheet "Liste naissance"](https://docs.google.com/spreadsheets/d/1DBBzZXJXa3zy3XtvXqIyaMRYF3Y_S36UZrLk8L_Zr7E/edit?gid=0#gid=0), colonnes `id | nom | lien | prix | reserve`. Choisi à la place d'un simple fichier JSON pour permettre l'édition directe de la liste (ajout/retrait de cadeaux, prix, liens) sans toucher au serveur.
+- **Stockage** : [Google Sheet "Liste naissance"](https://docs.google.com/spreadsheets/d/1DBBzZXJXa3zy3XtvXqIyaMRYF3Y_S36UZrLk8L_Zr7E/edit?gid=0#gid=0), colonnes `id | nom | lien | prix | reserve | donateur | commentaire`. Choisi à la place d'un simple fichier JSON pour permettre l'édition directe de la liste (ajout/retrait de cadeaux, prix, liens) sans toucher au serveur.
+  - `donateur` et `commentaire` sont remplies automatiquement par le node "Réserver (update Sheet)" lors d'une réservation (prénom du donateur ou "Anonyme", et son message) — **ces deux colonnes doivent exister dans le Sheet** (à ajouter manuellement si ce n'est pas déjà fait) pour que la mise à jour fonctionne.
   - Un exemple de structure (ancienne approche fichier) reste dans `data/objets.json` à titre de référence, non utilisé par le workflow actuel.
 
 ## Déploiement
@@ -29,6 +30,7 @@ Note sur le brouillon initial : le kit "BEBECONFORT Trousse de toilette (8 produ
 ## Reste à faire
 
 - [ ] Compléter `lien` et `prix` pour chaque ligne du Google Sheet
+- [ ] Ajouter les colonnes `donateur` et `commentaire` dans le Google Sheet
 - [ ] Connecter les identifiants Google Sheets OAuth2 dans N8N et importer/activer le workflow
 - [ ] Connecter les identifiants Gmail OAuth2 sur le node "Envoyer email (don)"
 - [x] Héberger le HTML + configurer le sous-domaine OVH

@@ -99,7 +99,9 @@
           "mappingMode": "defineBelow",
           "value": {
             "id": "={{ $json.body.id }}",
-            "reserve": "TRUE"
+            "reserve": "TRUE",
+            "donateur": "={{ $json.body.anonyme ? 'Anonyme' : $json.body.prenom }}",
+            "commentaire": "={{ $json.body.message }}"
           },
           "matchingColumns": ["id"]
         },
