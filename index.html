@@ -30,6 +30,16 @@
     overflow-x:hidden;
     position:relative;
   }
+  body::before{
+    content:'';
+    position:fixed; inset:0; z-index:0;
+    background:
+      linear-gradient(180deg, rgba(10,14,26,0.9), rgba(10,14,26,0.95)),
+      url('photos/orion4.jpeg') center 25%/cover no-repeat;
+    background-blend-mode:multiply;
+    opacity:0.3;
+    pointer-events:none;
+  }
 
   /* Champ d'étoiles ambiant */
   .sky{position:fixed; inset:0; z-index:0; pointer-events:none;}
