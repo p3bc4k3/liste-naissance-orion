@@ -272,6 +272,19 @@
   }
   .photo-grid a:hover img{ transform:scale(1.06); }
 
+  .photo-lock{ text-align:center; padding:40px 20px; }
+  .photo-lock-text{
+    font-family:'Cormorant Garamond', serif; font-style:italic;
+    color:var(--olive-light); margin-bottom:20px; font-size:1.1rem;
+  }
+  .photo-lock-form{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .photo-lock-form input{ max-width:220px; }
+  .photo-lock-error{
+    color:#c0736a; font-size:13px; margin-top:14px;
+    opacity:0; transition:opacity .2s ease;
+  }
+  .photo-lock-error.show{ opacity:1; }
+
   .objet{
     background:var(--navy);
     border:1px solid var(--line);
@@ -493,7 +506,16 @@
       <h2>Quelques instants</h2>
       <div class="branche"></div>
     </div>
-    <div id="galeriePhotos" class="photo-grid">
+    <div id="photoLock" class="photo-lock">
+      <p class="photo-lock-text">Cet espace est réservé aux proches.</p>
+      <div class="photo-lock-form">
+        <input type="password" id="photoPassword" class="modal-input" placeholder="Mot de passe" autocomplete="off">
+        <button class="tab-btn" id="photoUnlock">Accéder</button>
+      </div>
+      <p class="photo-lock-error" id="photoLockError">Mot de passe incorrect.</p>
+    </div>
+
+    <div id="galeriePhotos" class="photo-grid" hidden>
       <div class="loading">Les premières photos arrivent bientôt…</div>
     </div>
   </div>
@@ -617,9 +639,47 @@
       btn.setAttribute('aria-selected', 'true');
       Object.values(tabPanels).forEach(p => p.classList.remove('active'));
       tabPanels[btn.dataset.tab].classList.add('active');
-      if (btn.dataset.tab === 'photos') chargerPhotos();
+      if (btn.dataset.tab === 'photos' && photosDeverrouillees()) chargerPhotos();
     });
   });
+
+  // ─── Verrouillage par mot de passe (Photos) ──────────
+  const PHOTOS_PASSWORD = 'betelgeuse';
+  const photoLock = document.getElementById('photoLock');
+  const photoPassword = document.getElementById('photoPassword');
+  const photoUnlock = document.getElementById('photoUnlock');
+  const photoLockError = document.getElementById('photoLockError');
+  const galeriePhotosEl = document.getElementById('galeriePhotos');
+
+  function photosDeverrouillees() {
+    return localStorage.getItem('orion-photos-unlocked') === 'true';
+  }
+
+  function deverrouillerPhotos() {
+    localStorage.setItem('orion-photos-unlocked', 'true');
+    photoLock.hidden = true;
+    galeriePhotosEl.hidden = false;
+    chargerPhotos();
+  }
+
+  function tenterDeverrouillage() {
+    if (photoPassword.value.trim().toLowerCase() === PHOTOS_PASSWORD.toLowerCase()) {
+      deverrouillerPhotos();
+    } else {
+      photoLockError.classList.add('show');
+      photoPassword.value = '';
+      photoPassword.focus();
+    }
+  }
+
+  photoUnlock.addEventListener('click', tenterDeverrouillage);
+  photoPassword.addEventListener('keydown', (e) => { if (e.key === 'Enter') tenterDeverrouillage(); });
+  photoPassword.addEventListener('input', () => photoLockError.classList.remove('show'));
+
+  if (photosDeverrouillees()) {
+    photoLock.hidden = true;
+    galeriePhotosEl.hidden = false;
+  }
 
   // ─── Galerie photos ───────────────────────────────────
   let photosChargees = false;
