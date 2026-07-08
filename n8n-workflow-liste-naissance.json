@@ -1,0 +1,95 @@
+{
+  "name": "Liste de naissance - Orion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "liste-naissance",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-get",
+      "name": "Webhook GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "liste-naissance-get"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "liste-naissance",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-post",
+      "name": "Webhook POST",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 260],
+      "webhookId": "liste-naissance-post"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lit le fichier objets.json depuis le disque du serveur N8N\nconst fs = require('fs');\nconst path = '/data/liste-naissance/objets.json';\n\nlet objets = [];\ntry {\n  objets = JSON.parse(fs.readFileSync(path, 'utf8'));\n} catch (e) {\n  objets = [];\n}\n\nreturn [{ json: { objets } }];"
+      },
+      "id": "lire-json",
+      "name": "Lire objets.json",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.objets }}",
+        "options": {}
+      },
+      "id": "repondre-get",
+      "name": "Répondre (liste)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Lit le JSON, marque l'objet comme réservé, réécrit le fichier\nconst fs = require('fs');\nconst path = '/data/liste-naissance/objets.json';\n\nconst body = $input.first().json.body || $input.first().json;\nconst id = String(body.id);\n\nlet objets = [];\ntry {\n  objets = JSON.parse(fs.readFileSync(path, 'utf8'));\n} catch (e) {\n  objets = [];\n}\n\nobjets = objets.map(o => {\n  if (String(o.id) === id) {\n    return { ...o, reserve: true };\n  }\n  return o;\n});\n\nfs.writeFileSync(path, JSON.stringify(objets, null, 2));\n\nreturn [{ json: { objets } }];"
+      },
+      "id": "reserver-objet",
+      "name": "Réserver objet",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 260]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.objets }}",
+        "options": {}
+      },
+      "id": "repondre-post",
+      "name": "Répondre (mise à jour)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [440, 260]
+    }
+  ],
+  "connections": {
+    "Webhook GET": {
+      "main": [[{ "node": "Lire objets.json", "type": "main", "index": 0 }]]
+    },
+    "Lire objets.json": {
+      "main": [[{ "node": "Répondre (liste)", "type": "main", "index": 0 }]]
+    },
+    "Webhook POST": {
+      "main": [[{ "node": "Réserver objet", "type": "main", "index": 0 }]]
+    },
+    "Réserver objet": {
+      "main": [[{ "node": "Répondre (mise à jour)", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
